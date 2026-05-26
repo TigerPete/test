@@ -15,6 +15,16 @@ from rag_agent.agents.state import GraphState
 from rag_agent.llm import get_chat_llm
 
 
+def _format_context(docs: list[Document]) -> str:
+    parts: list[str] = []
+    for d in docs:
+        source = d.metadata.get("source", "unknown")
+        page = d.metadata.get("page", None)
+        page_str = f", page {page + 1}" if isinstance(page, int) else ""
+        parts.append(f"[source: {source}{page_str}]\n{d.page_content}")
+    return "\n\n---\n\n".join(parts)
+
+
 def writing_agent(state: GraphState, retriever: VectorStoreRetriever) -> dict:
     """
     Retrieve relevant chunks, then generate a structured technical draft.
@@ -27,7 +37,7 @@ def writing_agent(state: GraphState, retriever: VectorStoreRetriever) -> dict:
     retrieved_docs: list[Document] = retriever.invoke(query)
 
     # Flatten chunk text for the prompt (metadata like source file is not shown to the model here).
-    formatted_context = "\n\n".join(doc.page_content for doc in retrieved_docs)
+    formatted_context = _format_context(retrieved_docs)
 
     llm = get_chat_llm()
     prompt = ChatPromptTemplate.from_messages([

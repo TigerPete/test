@@ -49,4 +49,12 @@ def get_retriever() -> VectorStoreRetriever:
     k=RETRIEVAL_K limits how much context fits in the LLM prompt (and runtime).
     """
     store = get_vector_store()
-    return store.as_retriever(search_kwargs={"k": RETRIEVAL_K})
+    fetch_k = max(40, RETRIEVAL_K * 4)
+    return store.as_retriever(
+        search_type="mmr",
+        search_kwargs={
+            "k": RETRIEVAL_K,
+            "fetch_k": fetch_k,
+            "lambda_mult": 0.5,
+        },
+    )

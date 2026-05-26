@@ -25,15 +25,15 @@ COLLECTION_NAME = "rag_documents"
 CHAT_MODEL = "llama3.2:3b"
 EMBED_MODEL = "nomic-embed-text"
 CHAT_TEMPERATURE = 0.3  # Lower = more factual/consistent; higher = more creative.
-CHAT_NUM_CTX = 4096  # Context window size; smaller uses less VRAM.
+CHAT_NUM_CTX = 8192  # Context window size; smaller uses less VRAM.
 # None = Ollama decides GPU layers; 0 = force CPU (slower, avoids CUDA OOM).
 CHAT_NUM_GPU = None
 
 # --- Chunking (intake) ---
 # Documents are split so each chunk fits in the model context and retrieval stays focused.
-CHUNK_SIZE = 1000  # Characters per chunk (approximate; splitter respects boundaries).
-CHUNK_OVERLAP = 200  # Overlap preserves sentences that would otherwise be cut in half.
+CHUNK_SIZE = 1800  # Characters per chunk (approximate; splitter respects boundaries).
+CHUNK_OVERLAP = 350  # Overlap preserves sentences that would otherwise be cut in half.
 
 # --- Retrieval (analyze) ---
 # How many chunks the writing agent pulls per question (trade-off: coverage vs. speed/VRAM).
-RETRIEVAL_K = 4
+RETRIEVAL_K = 16

@@ -17,6 +17,16 @@ from rag_agent.llm import get_chat_llm
 from rag_agent.vector_store import get_retriever
 
 
+def _format_context(docs) -> str:
+    parts: list[str] = []
+    for d in docs:
+        source = d.metadata.get("source", "unknown")
+        page = d.metadata.get("page", None)
+        page_str = f", page {page + 1}" if isinstance(page, int) else ""
+        parts.append(f"[source: {source}{page_str}]\n{d.page_content}")
+    return "\n\n---\n\n".join(parts)
+
+
 def quick_answer(query: str) -> str:
     """
     Retrieve context and return a conversational answer (no report file).
@@ -25,7 +35,7 @@ def quick_answer(query: str) -> str:
     """
     retriever = get_retriever()
     retrieved = retriever.invoke(query)
-    context = "\n\n".join(doc.page_content for doc in retrieved)
+    context = _format_context(retrieved)
 
     llm = get_chat_llm()
     prompt = ChatPromptTemplate.from_messages([
