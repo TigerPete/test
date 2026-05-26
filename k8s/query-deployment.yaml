@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-query
+  namespace: rag
+  labels:
+    app.kubernetes.io/name: rag-query
+spec:
+  # Safe to increase when PVC is ReadWriteMany and storage class supports multi-node mount.
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rag-query
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rag-query
+    spec:
+      containers:
+        - name: api
+          image: rag-agent:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: rag-agent-config
+          volumeMounts:
+            - name: rag-data
+              mountPath: /app/data
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "2"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 12
+      volumes:
+        - name: rag-data
+          persistentVolumeClaim:
+            claimName: rag-data

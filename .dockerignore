@@ -1,0 +1,17 @@
+.venv
+__pycache__
+*.py[cod]
+.git
+.gitignore
+.idea
+.vscode
+data/chroma_db
+data/output/*.md
+data/documents/**/*.pdf
+data/documents/**/*.txt
+data/documents/**/*.md
+!data/documents/.gitkeep
+!data/documents/uploads/.gitkeep
+!data/output/.gitkeep
+*.md
+agent-transcripts

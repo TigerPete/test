@@ -1,0 +1,24 @@
+# ReadWriteMany: ingest Job and multiple query pods can mount the same volume
+# across nodes. Requires a storage class that supports RWX, for example:
+#   - AWS: efs-sc (EFS CSI)
+#   - Azure: azurefile-csi
+#   - GCP: Filestore CSI
+#   - On-prem: NFS provisioner
+#
+# Uncomment and set storageClassName for your cluster (examples below).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rag-data
+  namespace: rag
+  labels:
+    app.kubernetes.io/name: rag-agent
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+  # storageClassName: efs-sc          # AWS EFS example
+  # storageClassName: azurefile-csi   # Azure Files example
+  # storageClassName: standard-rwx    # custom NFS / Filestore class

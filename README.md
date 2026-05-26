@@ -60,6 +60,41 @@ python -m venv .venv
 
 Always use `.venv\Scripts\python.exe`, not plain `python`, on Windows.
 
+### HTTP API (cloud-style boundaries)
+
+```powershell
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\run-api.bat
+```
+
+Open http://127.0.0.1:8000/docs for interactive API docs.
+
+| Endpoint | Role |
+|----------|------|
+| `POST /v1/ingest` | Batch index (same as CLI ingest); container/job exits when done |
+| `POST /v1/chat` | Quick RAG answer |
+| `POST /v1/analyze` | Full three-agent report |
+| `GET /ready` | Ollama + index readiness |
+
+### Docker (query service vs ingest job)
+
+```powershell
+docker compose up -d ollama
+docker compose exec ollama ollama pull llama3.2:3b
+docker compose exec ollama ollama pull nomic-embed-text
+docker compose --profile ingest run --rm ingest
+docker compose up query
+```
+
+- **ingest** — one-shot job; terminates when indexing finishes.
+- **query** — HTTP API on port 8000; scale to zero in cloud when no traffic.
+
+Mount `./data` for documents and Chroma. Set `OLLAMA_HOST` if Ollama is not the compose service.
+
+### Kubernetes (dev cluster)
+
+See [k8s/README.md](k8s/README.md) for manifests, apply order, and ingest Job → query Deployment flow.
+
 ---
 
 ## How it works
@@ -74,6 +109,7 @@ Upload PDFs → Index (Chroma + Ollama embeddings) → Ask a question
 | Path | Purpose |
 |------|---------|
 | `app.py` | Streamlit UI (primary) |
+| `rag_agent/api.py` | FastAPI query + ingest HTTP API |
 | `rag_agent/chat.py` | Fast `quick_answer()` for chat mode |
 | `rag_agent/intake.py` | Load, chunk, embed documents |
 | `rag_agent/graph.py` | Three-agent pipeline for full reports |
