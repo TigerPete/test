@@ -15,13 +15,17 @@ from rag_agent.config import (
     CHROMA_DIR,
     COLLECTION_NAME,
     EMBED_MODEL,
+    OLLAMA_BASE_URL,
     RETRIEVAL_K,
 )
 
 
 def get_embeddings() -> OllamaEmbeddings:
     """Same embedding model must be used for ingest and retrieval or search quality breaks."""
-    return OllamaEmbeddings(model=EMBED_MODEL)
+    kwargs: dict = {"model": EMBED_MODEL}
+    if OLLAMA_BASE_URL:
+        kwargs["base_url"] = OLLAMA_BASE_URL
+    return OllamaEmbeddings(**kwargs)
 
 
 def get_vector_store(reset: bool = False) -> Chroma:

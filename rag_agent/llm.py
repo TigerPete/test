@@ -12,6 +12,7 @@ from rag_agent.config import (
     CHAT_NUM_CTX,
     CHAT_NUM_GPU,
     CHAT_TEMPERATURE,
+    OLLAMA_BASE_URL,
 )
 
 
@@ -29,4 +30,6 @@ def get_chat_llm() -> ChatOllama:
     }
     if CHAT_NUM_GPU is not None:
         kwargs["num_gpu"] = CHAT_NUM_GPU
+    if OLLAMA_BASE_URL:
+        kwargs["base_url"] = OLLAMA_BASE_URL
     return ChatOllama(**kwargs)

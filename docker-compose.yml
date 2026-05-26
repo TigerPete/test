@@ -1,0 +1,57 @@
+# Local cloud-style layout: Ollama + query API + optional one-shot ingest job.
+#
+# Start query API:
+#   docker compose up query
+#
+# Run ingest then exit (profile — does not stay running):
+#   docker compose --profile ingest run --rm ingest
+#
+# Pull models into Ollama first:
+#   docker compose exec ollama ollama pull llama3.2:3b
+#   docker compose exec ollama ollama pull nomic-embed-text
+#
+# Put PDFs in ./data/documents/ (or uploads/) on the host before ingest.
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    # Uncomment for NVIDIA GPU:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  query:
+    build: .
+    image: rag-agent:local
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "8000:8000"
+    depends_on:
+      - ollama
+    command: ["uvicorn", "rag_agent.api:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  ingest:
+    profiles: ["ingest"]
+    image: rag-agent:local
+    build: .
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - ollama
+    command: ["python", "-m", "rag_agent.main", "ingest", "--reset"]
+
+volumes:
+  ollama_data:
