@@ -1,0 +1,35 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Environment / secrets
+.env
+.env.*
+
+# Vector index (large; users rebuild with Index documents)
+data/chroma_db/
+
+# Generated reports (optional local artifacts)
+data/output/*.md
+
+# User documents — do not commit proprietary PDFs
+data/documents/**/*.pdf
+data/documents/**/*.txt
+data/documents/**/*.md
+!data/documents/.gitkeep
+!data/documents/uploads/.gitkeep
+
+# Streamlit
+.streamlit/secrets.toml
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
